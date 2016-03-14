@@ -6,6 +6,7 @@
 /**Includes**/
 
 #define _GNU_SOURCE
+//#define _BSD_SOURCE
 #include <unistd.h>
 
 #include <stdlib.h>
@@ -18,6 +19,10 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <pthread.h>
+#include <arpa/inet.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
 
 /**Function prototpyes**/
 
@@ -45,6 +50,10 @@ void* p_hb( void* );
 int dsh( char* );
 char* splitInstructions( char* );
 char* findRedirect( char* );
+void clientSetup( char*, char* );
+void serverSetup( char* );
+char* splitRemoteClient( char* );
+char* splitRemoteServer( char* );
 
 /**globals**/
 
@@ -71,5 +80,9 @@ extern char* args2[64];
 
 // for remote pipelining
 extern int remoteFlag; 
+extern int remoteClientFlag;
+extern int remoteServerFlag;
+extern char* remotePort;
+extern char* remoteAddress;
 
 #endif

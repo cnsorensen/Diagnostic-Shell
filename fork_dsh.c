@@ -24,7 +24,8 @@ int dsh_fork( char* args[], int num_params )
     }
 
     // for redirect
-    int* rd_fds;
+    int rd_fds[1];
+
 	// create a pipe
     if( redirectFlag == 1 )
     {
@@ -82,17 +83,17 @@ int dsh_fork( char* args[], int num_params )
 			// if it's <
             if( redirectDirection == DIRECT_IN )
             {
-                rd_fds = open( redirectFilename, O_RDONLY, 0666 );
-                dup2( rd_fds, STDIN_FILENO );
+                rd_fds[0] = open( redirectFilename, O_RDONLY, 0666 );
+                dup2( rd_fds[0], STDIN_FILENO );
             }
 			// if it's >
             else
             {
-                rd_fds = creat( redirectFilename, 0644 );
-                dup2( rd_fds, STDOUT_FILENO );
+                rd_fds[0] = creat( redirectFilename, 0644 );
+                dup2( rd_fds[0], STDOUT_FILENO );
             }
 
-            close( rd_fds );
+            close( rd_fds[0] );
 			
 			// execute the command
             execvp( args1[0], args1 );
@@ -101,8 +102,20 @@ int dsh_fork( char* args[], int num_params )
         }
 		else
 		{
+			// if it's a client, set it up
+			if( remoteClientFlag == 1 )
+			{
+				clientSetup( remoteAddress, remotePort );
+			}
+			// if it's a server, set it up
+			else if( remoteServerFlag == 1 )
+			{
+				serverSetup( remotePort );
+			}
+
         	// execute the program
         	execvp( args1[0], args1 );
+
         	// only returns when an erro occurs
         	exit(0);
 		}

@@ -22,9 +22,10 @@
 //              *terrible* but it keeps me awake at night.
 //
 //      | - doesn't a three-way with it though
-//      < and > - it only works for the standard use.
+//      < and > - it only works for the standard use. I made a cute program that reads
+//                in a file like < and prints the number in it. But it doesn't print :(
 //      (( and )) - fuck me in the ass
-//
+//  
 
 #include "header.h"
 
@@ -120,6 +121,75 @@ char* findRedirect( char* line )
     return line;
 }
 
+// cmd (( server port
+char* splitRemoteClient( char* line )
+{
+	char* instruction;
+
+	// delimiters
+    const char delim[3] = " (";
+
+    // string to hold each token 
+    char* token = NULL;
+
+    int i = 0;
+	char* tokens[64];
+
+    // extract the first word
+    token = strtok( line, delim );
+
+    // collect the words
+    while( token != NULL )
+    {
+        // add to list of tokens
+        tokens[i] = token;
+        i++;
+
+        // get the next word
+        token = strtok( NULL, delim );
+    }
+	
+	instruction = tokens[0];
+	remoteAddress = tokens[1];
+	remotePort = tokens[2];
+
+    return instruction;
+} 
+
+// cmd )) port
+char* splitRemoteServer( char* line )
+{
+	char* instruction;
+
+	// delimiters
+    const char delim[3] = " )";
+
+    // string to hold each token 
+    char* token = NULL;
+
+    int i = 0;
+	char* tokens[64];
+
+    // extract the first word
+    token = strtok( line, delim );
+
+    // collect the words
+    while( token != NULL )
+    {
+        // add to list of tokens
+        tokens[i] = token;
+        i++;
+
+        // get the next word
+        token = strtok( NULL, delim );
+    }
+	
+	instruction = tokens[0];
+	remotePort = tokens[1];
+
+    return instruction;
+} 
+
 // Handles the user input
 // Param: char* line - the command the user submitted
 // Return: 1 - continue while loop. 0 - end program
@@ -134,7 +204,23 @@ int dsh( char* line )
     // check for a redirect
     else if( strchr( line, '<' ) != NULL || strchr( line, '>' ) != NULL )
     {
-        line = findRedirect( line );
+        line = findRedirect( line );    
+	}
+
+    // check for remote client
+    else if( strchr( line, '(' ) != NULL )
+    {
+        // turn on the flag
+        remoteClientFlag = 1;
+		line = splitRemoteClient( line );
+    }
+
+    // check for remote server
+    else if( strchr( line, ')' ) != NULL )
+    {
+        // turn on the flag
+        remoteServerFlag = 1;
+		line = splitRemoteServer( line );
     }
 
     // delimiters
@@ -299,6 +385,88 @@ void collect_threads()
     return;    
 }
 
+void clientSetup( char* targeaddr, char* port )
+{
+	int sockfd, portno;
+	struct sockaddr_in serv_addr;
+	struct hostent* server;
+
+	portno = atoi( port );
+
+	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
+
+	if( sockfd < 0 ) 
+	{
+        fprintf( stderr, "ERROR opening socket\n" );
+	}
+	
+	server = gethostbyname( targeaddr );
+
+	if( server == NULL ) 
+	{
+		fprintf( stderr, "ERROR, no such host\n" );
+		exit(0);
+	}
+
+	bzero( (char*)&serv_addr, sizeof(serv_addr) );
+
+	serv_addr.sin_family = AF_INET;
+
+	bcopy( (char*)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
+	serv_addr.sin_port = htons( portno );
+	if( connect( sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr) ) < 0 ) 
+	{
+		fprintf( stderr, "ERROR connecting\n" );
+	}
+
+	dup2( sockfd , STDIN_FILENO ); 
+	//close( sockfd );
+
+	return;
+}
+
+void serverSetup( char* port )
+{
+	int sockfd, newsockfd, portno;
+	socklen_t clilen;
+	struct sockaddr_in serv_addr, cli_addr;
+
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0) 
+	{	
+		fprintf( stderr, "ERROR opening socket\n" );
+	}
+
+	bzero( (char *) &serv_addr, sizeof(serv_addr) );
+	portno = atoi( port );
+
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(portno);
+
+	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+	{ 
+		fprintf( stderr, "ERROR on binding\n" );
+	}
+
+	listen( sockfd, 5 );
+
+	clilen = sizeof(cli_addr);
+
+	newsockfd = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
+
+	if (newsockfd < 0) 
+		fprintf( stderr, "ERROR on accept\n" );
+
+	// duplicate and the close the original
+	dup2( newsockfd , STDOUT_FILENO );
+	dup2( newsockfd , STDIN_FILENO ); 
+	//close( newsockfd );
+
+	return;
+}
+
+
 int main( int argc, char** argv )
 {
     // flag to control the loop
@@ -331,6 +499,8 @@ int main( int argc, char** argv )
         // reset the flags
         pipeFlag = 0;
         redirectFlag = 0;
+        remoteClientFlag = 0;
+        remoteServerFlag = 0;
     }
 
     return 1;

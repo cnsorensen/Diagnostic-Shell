@@ -11,6 +11,10 @@ const int PWD_T = 3;
 
 // for remote pipelining
 int remoteFlag = 0;
+int remoteClientFlag = 0;
+int remoteServerFlag = 0;
+char* remotePort = "";
+char* remoteAddress = "";
 
 // for pipelining
 int pipeFlag = 0;
