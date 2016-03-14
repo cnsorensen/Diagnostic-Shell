@@ -387,53 +387,6 @@ int dsh_kill( int pid, int signal_num )
     return flag;
 }
 
-// Uses the fork command to signal the system with a command
-//  Layout is similar to Dr. Jeff McGough's code which was taken from
-//  "Advanced Linux Programming," by CodeSourcery LLC
-//  Copyright (C) 2001 by New Riders Publishing
-//
-// Params: char* args[] - list of the commands from the user
-// Return: 1 to continue for loop for the program
-int dsh_fork( char* args[], int num_params )
-{    
-    // duplicate the process
-    int c_pid;
-    //pid_t c_pid;
-    c_pid = fork();
-
-    // array to hold the arguments
-    char* ironman[num_params + 1];
-
-    // add the null to the end in order for execvp to work
-    int i;
-    for( i = 0; i < num_params; i++ )
-    {
-        ironman[i] = args[i];
-    }
-    ironman[i] = NULL;
-    
-
-    // child process
-    if( c_pid == 0 )
-    {
-        ///do the piping in here
-        // execute the program
-        execvp( args[0], ironman );
-        // only returns when an erro occurs
-        //printf( "printing if error occurs\n" ); 
-        exit(0);
-    
-    }
-    // parent process
-    else
-    {
-        int waiting;
-        wait( &waiting );
-    }
-
-    return 1;
-}
-
 // REFACTOR INTO PTHREADS
 // hb - heartbeat 
 //  Print current time loop

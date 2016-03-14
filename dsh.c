@@ -30,42 +30,58 @@
 // Split the instructions (used in pipelining)
 int splitInstructions( char* line )
 {
-    int return_val = 1;
+    printf( "Let me split!\n" );
+    pipeFlag = 1;
 
-    const char delim[2] = "|";
-	char* instruction;
-	char* instructions[64];
+    const char delimPipe[2] = "|";
+	char* instruction1;
+	char* instruction2;
 
     // extract the first instruction
-    instruction = strtok( line, delim );
-
-    // collect the instructions
-	int i = 0;
-    while( instruction != NULL )
-    {
-        // add to list of tokens
-        instructions[i] = instruction;
-        i++;
-
-        // get the next word
-        instruction = strtok( NULL, delim );
-    }
+    instruction1 = strtok( line, delimPipe );
 	
-	// go through each instruction
-	int j;
-	for( j = 0; j < i; j++ )
-	{
-        // perform each instruction
-		return_val = dsh( instructions[j] );
+	// and the second instruction
+	instruction2 = strtok( NULL, delimPipe );
 
-		// if an exit was given, exit the program
-		if( return_val == 0 )
-		{
-			return return_val;
-		}		
-	}
+	// delimiters
+    const char delim[3] = " \t";
+    // string to hold each token 
+    char* token = NULL;
 
-	return return_val;
+
+    int i = 0;
+    // extract the first word
+    token = strtok( instruction2, delim );
+    // collect the words
+    while( token != NULL )
+    {      
+		// add to list of tokens
+        args2[i] = token;
+        i++;
+        // get the next word
+        token = strtok( NULL, delim );
+    }
+	args2[i+1] = NULL;
+
+    char* args1[64];
+	i = 0;
+    // extract the first word
+    token = strtok( instruction1, delim );
+    // collect the words
+    while( token != NULL )
+    {       
+		// add to list of tokens
+        args1[i] = token;
+        i++;
+        // get the next word
+        token = strtok( NULL, delim );
+    }
+	//args2[i+1] = NULL;
+
+	dsh_fork( args1, i );
+
+    // perform the first instruction
+	return 1;
 }
 
 char* findRedirect( char* line )
@@ -78,7 +94,7 @@ char* findRedirect( char* line )
 
     // move these to be globals    
     //char* filename = NULL;
-    //int direction;
+    //int direction;:q
 
     // if it's a file in
 	if( strchr( line, '<' ) != NULL )	
@@ -121,12 +137,21 @@ char* findRedirect( char* line )
 // Return: 1 - continue while loop. 0 - end program
 int dsh( char* line )
 {
-    // search for redirect
-    line = findRedirect( line );
+	// check for a pipe
+	if( strchr( line, '|' ) != NULL )
+	{
+		//line = splitInstructions( line );
+		splitInstructions( line );	
+		return 1;
+	}
+    // check for a redirect
+    else if( strchr( line, '<' ) != NULL || strchr( line, '>' ) != NULL )
+    {
+        line = findRedirect( line );
+    }
 
     // delimiters
     const char delim[3] = " \t";
-    //const char remoteDelim[3] = "()"; 
 
     // string to hold each token 
     char* token = NULL;
@@ -310,7 +335,7 @@ int main( int argc, char** argv )
         char* line2 = removeNewLine( line );
 
         // call the dsh function on the command line
-        flag = splitInstructions( line2 );
+        flag = dsh( line2 );
 
         // collect the threads created
         if( thread_count > 0 )

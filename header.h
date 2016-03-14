@@ -56,4 +56,10 @@ extern const int PWD_T;
 
 extern int TEST;
 
+extern int pipeFlag;
+extern int redirectFlag;
+extern int remoteFlag; 
+
+extern char* args2[64];
+
 #endif
