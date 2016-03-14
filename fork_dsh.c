@@ -15,22 +15,25 @@ int dsh_fork( char* args[], int num_params )
     pid_t c_pid;
     c_pid = fork();
 
+    // for pipelining
     int fds[2];
-
     // create a pipe
-    if( redirectFlag == 0 )
+    if( pipeFlag == 1 )
     {
         pipe( fds );
     }
-    else
+    // for redirect
+    int* rd_fds;
+    if( redirectFlag == 1 )
     {
-        pipe( redirect_fd );
+        pipe( rd_fds );
     }
 
     // array to hold the arguments
     char* args1[num_params + 1];
 
     // add the null to the end in order for execvp to work
+    // Note to me: Move this.
     int i;
     for( i = 0; i < num_params; i++ )
     {
@@ -38,7 +41,7 @@ int dsh_fork( char* args[], int num_params )
     }
     args1[i] = NULL;
 
-    // child processe
+    // child process
     if( c_pid == (pid_t) 0 )
     {
         // add another fork here if piping
@@ -64,15 +67,24 @@ int dsh_fork( char* args[], int num_params )
                 exit(0);
             }
 
-//            pipeFlag = 0;
-
-			exit(0);
+            exit(0);
         }
-        else if( redirectFlag == 1 )
+        if( redirectFlag == 1 )
         {
-            dup2( redirect_fd, STDOUT_FILENO );
+            if( redirectDirection == DIRECT_IN )
+            {
+                rd_fds = open( redirectFilename, O_RDONLY, 0666 );
+                dup2( rd_fds, STDIN_FILENO );
+            }
+            else
+            {
+                rd_fds = creat( redirectFilename, 0644 );
+                dup2( rd_fds, STDOUT_FILENO );
+            }
+
+            close( rd_fds );
             execvp( args1[0], args1 );
-            close( redirect_fd );
+            exit(0);
         }
 		else
 		{
@@ -88,16 +100,24 @@ int dsh_fork( char* args[], int num_params )
     {
         int waiting;
         wait( &waiting );
-        if( redirectFlag == 0 )
+        if( pipeFlag == 1 )
         {
             close( fds[0] );
             close( fds[1] );
-        }
-        else if( redirectFlag == 1 );
-        {
-            close( redirect_fd );           
         }
     }
 
     return 1;
 }
+
+/*
+ 
+in child:
+dup2( 1, 1 )
+close(1)
+exec
+
+in parent:
+nothing
+
+*/

@@ -28,7 +28,7 @@
 #include "header.h"
 
 // Split the instructions (used in pipelining)
-int splitInstructions( char* line )
+char* splitInstructions( char* line )
 {
     // set the pipe flag
     pipeFlag = 1;
@@ -65,25 +65,7 @@ int splitInstructions( char* line )
     }
 	args2[i+1] = NULL;
 
-    char* args1[64];
-	i = 0;
-    // extract the first word
-    token = strtok( instruction1, delim );
-    // collect the words
-    while( token != NULL )
-    {       
-		// add to list of tokens
-        args1[i] = token;
-        i++;
-        // get the next word
-        token = strtok( NULL, delim );
-    }
-	//args2[i+1] = NULL;
-
-	dsh_fork( args1, i );
-
-    // perform the first instruction
-	return 1;
+    return instruction1;      
 }
 
 char* findRedirect( char* line )
@@ -110,13 +92,7 @@ char* findRedirect( char* line )
     	//redirectFilename = strtok( NULL, delimIn );
 
 		// set the file direction
-		redirectDirection = 1;
-
-        printf( "redirect filename: %s\n", redirectFilename );
-
-
-        // set the file descriptor
-        redirect_fd = open( redirectFilename, O_RDONLY, 0 );
+		redirectDirection = DIRECT_IN;
 
         // return the instruction to be executed
 		return instruction;
@@ -133,12 +109,7 @@ char* findRedirect( char* line )
 		//redirectFilename = strtok( NULL, delimOut );
 
         // set the filedirection
-        redirectDirection = 2;
-
-        // set the file descriptor
-        redirect_fd = creat( redirectFilename, 0644 );
-
-        printf( "redirect filename: %s\n", redirectFilename );
+        redirectDirection = DIRECT_OUT;
 
 		// return the instruction to be executed
 		return instruction;	
@@ -156,10 +127,9 @@ int dsh( char* line )
 	// check for a pipe
 	if( strchr( line, '|' ) != NULL )
 	{
-		//line = splitInstructions( line );
-		splitInstructions( line );	
-		return 1;
+		line = splitInstructions( line );
 	}
+    
     // check for a redirect
     else if( strchr( line, '<' ) != NULL || strchr( line, '>' ) != NULL )
     {
@@ -185,8 +155,6 @@ int dsh( char* line )
         // add to list of tokens
         tokens[i] = token;
         i++;
-
-        //printf( "Token: %s\n", token );
 
         // get the next word
         token = strtok( NULL, delim );
@@ -362,7 +330,6 @@ int main( int argc, char** argv )
         // reset the flags
         pipeFlag = 0;
         redirectFlag = 0;
-
     }
 
     return 1;

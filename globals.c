@@ -18,4 +18,6 @@ int TEST = 4;
 
 int redirectDirection = 0;
 char* redirectFilename = "";
-int redirect_fd = -1;
+
+const int DIRECT_IN = 0;
+const int DIRECT_OUT = 1;

@@ -37,13 +37,12 @@ int dsh_signal( int, int );
 int dsh_hb( int, int, char* );
 void* p_hb( void* );
 int dsh( char* );
-int splitInstructions( char* );
+char* splitInstructions( char* );
 char* findRedirect( char* );
 
 // globals
 extern int redirectDirection;
 extern char* redirectFilename;
-extern int redirect_fd;
 
 // [cmdnm, systat, hb, pwd]
 extern pthread_t dsh_threads[4];
@@ -62,5 +61,8 @@ extern int redirectFlag;
 extern int remoteFlag; 
 
 extern char* args2[64];
+
+extern const int DIRECT_IN;
+extern const int DIRECT_OUT;
 
 #endif
