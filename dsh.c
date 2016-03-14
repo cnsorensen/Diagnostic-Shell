@@ -398,7 +398,8 @@ void clientSetup( char* targeaddr, char* port )
 	if( sockfd < 0 ) 
 	{
         fprintf( stderr, "ERROR opening socket\n" );
-	}
+	    exit(0);
+    }
 	
 	server = gethostbyname( targeaddr );
 
@@ -417,6 +418,7 @@ void clientSetup( char* targeaddr, char* port )
 	if( connect( sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr) ) < 0 ) 
 	{
 		fprintf( stderr, "ERROR connecting\n" );
+        exit(0);
 	}
 
 	dup2( sockfd , STDIN_FILENO ); 
@@ -435,6 +437,7 @@ void serverSetup( char* port )
 	if (sockfd < 0) 
 	{	
 		fprintf( stderr, "ERROR opening socket\n" );
+        exit(0);
 	}
 
 	bzero( (char *) &serv_addr, sizeof(serv_addr) );
@@ -447,7 +450,8 @@ void serverSetup( char* port )
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 	{ 
 		fprintf( stderr, "ERROR on binding\n" );
-	}
+	    exit(0);
+    }
 
 	listen( sockfd, 5 );
 
@@ -455,8 +459,11 @@ void serverSetup( char* port )
 
 	newsockfd = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
 
-	if (newsockfd < 0) 
+	if( newsockfd < 0 )
+    { 
 		fprintf( stderr, "ERROR on accept\n" );
+        exit(0);
+    }
 
 	// duplicate and the close the original
 	dup2( newsockfd , STDOUT_FILENO );
