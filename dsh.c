@@ -18,9 +18,9 @@
 //      add hb - DONE
 //      pthread it up - NOT DONE - well it is, cmdnm is being picky and it's all
 //                      being trippy 
-//      | - NOTTTTT DONE - I did it the wrong and literal way
-//      < and >
-//      (( and ))
+//      | - DONE - I could do a three-way with it though
+//      < and > - NOT DONE
+//      (( and )) - fuck me in the ass
 //  Clean up some
 //  Error checking
 //
@@ -30,10 +30,13 @@
 // Split the instructions (used in pipelining)
 int splitInstructions( char* line )
 {
-    printf( "Let me split!\n" );
+    // set the pipe flag
     pipeFlag = 1;
 
+    // the delimeter to split the two commands
     const char delimPipe[2] = "|";
+
+    // to hold each instruction
 	char* instruction1;
 	char* instruction2;
 
@@ -47,7 +50,6 @@ int splitInstructions( char* line )
     const char delim[3] = " \t";
     // string to hold each token 
     char* token = NULL;
-
 
     int i = 0;
     // extract the first word
@@ -86,15 +88,16 @@ int splitInstructions( char* line )
 
 char* findRedirect( char* line )
 {
+    // delimiters for in or out
     const char delimIn[2] = "<";
 	const char delimOut[2] = ">";
+    const char delim[3] = "\n ";
 
 	// string to hold each token 
     char* instruction = NULL;
 
-    // move these to be globals    
-    //char* filename = NULL;
-    //int direction;:q
+    // set the flag for redirect
+    redirectFlag = 1;
 
     // if it's a file in
 	if( strchr( line, '<' ) != NULL )	
@@ -103,10 +106,17 @@ char* findRedirect( char* line )
 		instruction = strtok( line, delimIn );
 
         // get the filename
-        //REDIRECT_FILENAME = strtok( NULL, delimNewline );
-    	
+        redirectFilename = strtok( NULL, delim );
+    	//redirectFilename = strtok( NULL, delimIn );
+
 		// set the file direction
-		//REDIRECT_DIRECTION = 1;
+		redirectDirection = 1;
+
+        printf( "redirect filename: %s\n", redirectFilename );
+
+
+        // set the file descriptor
+        redirect_fd = open( redirectFilename, O_RDONLY, 0 );
 
         // return the instruction to be executed
 		return instruction;
@@ -119,10 +129,16 @@ char* findRedirect( char* line )
         instruction = strtok( line, delimOut );
 		
         // grab the filename
-        //REDIRECT_FILENAME = strtok( NULL, delimNewline );
-		
+        redirectFilename = strtok( NULL, delim );
+		//redirectFilename = strtok( NULL, delimOut );
+
         // set the filedirection
-        //REDIRECT_DIRECTION = 2;
+        redirectDirection = 2;
+
+        // set the file descriptor
+        redirect_fd = creat( redirectFilename, 0644 );
+
+        printf( "redirect filename: %s\n", redirectFilename );
 
 		// return the instruction to be executed
 		return instruction;	
@@ -342,6 +358,11 @@ int main( int argc, char** argv )
         {
             collect_threads();
         }
+        
+        // reset the flags
+        pipeFlag = 0;
+        redirectFlag = 0;
+
     }
 
     return 1;

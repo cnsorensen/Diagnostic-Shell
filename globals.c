@@ -15,3 +15,7 @@ int remoteFlag = 0;
 char* args2[64];
 
 int TEST = 4;
+
+int redirectDirection = 0;
+char* redirectFilename = "";
+int redirect_fd = -1;

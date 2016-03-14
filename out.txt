@@ -1,9 +1,0 @@
-dsh.c
-funcs.c
-header.h
-Makefile
-misc.c
-out.txt
-prog1.pdf
-README.md
-text.txt

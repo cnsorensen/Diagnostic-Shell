@@ -15,9 +15,17 @@ int dsh_fork( char* args[], int num_params )
     pid_t c_pid;
     c_pid = fork();
 
-    // create a pipe
     int fds[2];
-    pipe( fds );
+
+    // create a pipe
+    if( redirectFlag == 0 )
+    {
+        pipe( fds );
+    }
+    else
+    {
+        pipe( redirect_fd );
+    }
 
     // array to hold the arguments
     char* args1[num_params + 1];
@@ -56,15 +64,21 @@ int dsh_fork( char* args[], int num_params )
                 exit(0);
             }
 
+//            pipeFlag = 0;
+
 			exit(0);
+        }
+        else if( redirectFlag == 1 )
+        {
+            dup2( redirect_fd, STDOUT_FILENO );
+            execvp( args1[0], args1 );
+            close( redirect_fd );
         }
 		else
 		{
-        	// file redirect?
         	// execute the program
         	execvp( args1[0], args1 );
         	// only returns when an erro occurs
-        	//printf( "printing if error occurs\n" ); 
         	exit(0);
 		}
     
@@ -74,8 +88,15 @@ int dsh_fork( char* args[], int num_params )
     {
         int waiting;
         wait( &waiting );
-        close( fds[0] );
-        close( fds[1] );
+        if( redirectFlag == 0 )
+        {
+            close( fds[0] );
+            close( fds[1] );
+        }
+        else if( redirectFlag == 1 );
+        {
+            close( redirect_fd );           
+        }
     }
 
     return 1;

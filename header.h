@@ -41,8 +41,9 @@ int splitInstructions( char* );
 char* findRedirect( char* );
 
 // globals
-extern int REDIRECT_DIRECTION;
-extern char* REDIRECT_FILENAME;
+extern int redirectDirection;
+extern char* redirectFilename;
+extern int redirect_fd;
 
 // [cmdnm, systat, hb, pwd]
 extern pthread_t dsh_threads[4];
