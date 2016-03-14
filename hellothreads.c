@@ -21,6 +21,8 @@ int main( int argc, char* argv[] )
 
     //free( thread_handles );
 
+    printf( "I'm all done!" );
+
     return 0;
 }
 

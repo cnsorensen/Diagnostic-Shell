@@ -39,6 +39,12 @@ void* p_cmdnm( void* param )
     strcat( filename, pid );
     strcat( filename, "/cmdline" );
 
+    // BUG: For some weird-ass reason, if you don't print the pid
+    //      it won't open the file. If you only print the filename
+    //      here, it will have a bunch of garbage for the pid
+    printf( "pid: %s\n", pid );
+    //printf( "Filename: %s\n", filename );
+
     // holds the output of the cmdnm file
     //char cmdnm[128] = {NULL};
     char cmdnm[128];
