@@ -1,6 +1,9 @@
+// header.h
 
 #ifndef _DSH_H_
 #define _DSH_H_
+
+/**Includes**/
 
 #define _GNU_SOURCE
 #include <unistd.h>
@@ -16,8 +19,9 @@
 #include <time.h>
 #include <pthread.h>
 
-// Function prototpyes
-// Extra functions
+/**Function prototpyes**/
+
+// misc functions
 char* toLowerCase( char* );
 int isInt( char* );
 char* removeNewLine( char* );
@@ -36,14 +40,22 @@ int dsh_fork( char**, int );
 int dsh_signal( int, int );
 int dsh_hb( int, int, char* );
 void* p_hb( void* );
+
+// dsh functions
 int dsh( char* );
 char* splitInstructions( char* );
 char* findRedirect( char* );
 
-// globals
+/**globals**/
+
+// for redirects
 extern int redirectDirection;
 extern char* redirectFilename;
+extern const int DIRECT_IN;
+extern const int DIRECT_OUT;
+extern int redirectFlag;
 
+// for pthreads
 // [cmdnm, systat, hb, pwd]
 extern pthread_t dsh_threads[4];
 extern int thread_count;
@@ -53,16 +65,11 @@ extern const int SYSTAT_T;
 extern const int HB_T;
 extern const int PWD_T;
 
-
-extern int TEST;
-
+// for pipelining
 extern int pipeFlag;
-extern int redirectFlag;
-extern int remoteFlag; 
-
 extern char* args2[64];
 
-extern const int DIRECT_IN;
-extern const int DIRECT_OUT;
+// for remote pipelining
+extern int remoteFlag; 
 
 #endif

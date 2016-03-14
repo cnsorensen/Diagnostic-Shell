@@ -10,13 +10,7 @@
 // Return: 1- success, continue looping, -1 - fail. fork it.
 // Note: using the command >top will list the processes and their id's
 int cmdnm( char* pid )
-{
-    //pthread_t tid;
-    //pthread_attr_t attr;
-    //pthread_attr_init( &attr );
-    //pthread_create( &tid, &attr, p_cmdnm, (void*) pid );
-    //pthread_join( tid, NULL );   
-   
+{ 
     pthread_attr_t attr;
     pthread_attr_init( &attr );
     pthread_create( &dsh_threads[CMDNM_T], &attr, p_cmdnm, (void*) pid );
@@ -26,12 +20,12 @@ int cmdnm( char* pid )
     return 1;
 }
 
+// The function that cmdnm pthread calls
 void* p_cmdnm( void* param )
 {
     char* pid = (char*) param;
 
     FILE* fin;
-    //char filename[32] = {NULL};
     char filename[32];
 
     // create the filename with the pid
@@ -43,10 +37,8 @@ void* p_cmdnm( void* param )
     //      it won't open the file. If you only print the filename
     //      here, it will have a bunch of garbage for the pid
     printf( "pid: %s\n", pid );
-    //printf( "Filename: %s\n", filename );
 
     // holds the output of the cmdnm file
-    //char cmdnm[128] = {NULL};
     char cmdnm[128];
 
     // open the file with the name of the process
@@ -62,7 +54,6 @@ void* p_cmdnm( void* param )
     }
 
     pthread_exit(0);
-    //return NULL;
 }
 
 // Send a signal to a process
@@ -86,13 +77,7 @@ int dsh_signal( int signal_num, int pid )
 // Params: nun
 // Return: 1 for continue looping, -1 for an error
 int systat()
-{
-	//pthread_t tid;
-	//pthread_attr_t attr;
-	//pthread_attr_init( &attr );
-	//pthread_create( &tid, &attr, p_systat, NULL );
-	//pthread_join( tid, NULL ); 
-	
+{	
     pthread_attr_t attr;
     pthread_attr_init( &attr );
     pthread_create( &dsh_threads[SYSTAT_T], &attr, p_systat, (void*) NULL );
@@ -102,6 +87,7 @@ int systat()
 	return 1;
 }
 
+// The function that the syscat pthread calls
 void* p_systat( void* param )
 {
     // used for all file opening
@@ -293,7 +279,6 @@ void* p_systat( void* param )
     	fclose( fin );
 	}
 
-    //return 1;
 	pthread_exit(0);
 }
 
@@ -334,19 +319,6 @@ int cd( char* path )
 // Return: 1 - continue while loop
 int pwd()
 {
-    // get the current working directory
-    //char* cwd;
-    //cwd = (char*)get_current_dir_name();
-
-    // print to console
-    //printf( "%s\n", cwd );
-
-    TEST = 1;
-
-    //pthread_t tid;
-    //pthread_create( &tid, NULL, p_pwd, NULL );
-    //pthread_join( tid, NULL );
- 
     pthread_attr_t attr;
     pthread_attr_init( &attr );
     pthread_create( &dsh_threads[PWD_T], &attr, p_pwd, NULL );
@@ -355,7 +327,7 @@ int pwd()
 
     return 1;
 }
-
+// The fuction that the pwd pthread calls
 void* p_pwd( void* param )
 {
     char* cwd;
@@ -408,12 +380,6 @@ int dsh_hb( int tinc, int tend, char* tval )
 	{
 		hb_args[2] = 2;
 	}
-
-	//pthread_t tid;
-	//pthread_attr_t attr;
-	//pthread_attr_init( &attr );
-	//pthread_create( &tid, &attr, p_hb, hb_args );
-	//pthread_join( tid, NULL );
  
     pthread_attr_t attr;
     pthread_attr_init( &attr );
@@ -424,6 +390,7 @@ int dsh_hb( int tinc, int tend, char* tval )
     return 1;
 }
 
+// The function that hb thread calls
 void* p_hb( void* args )
 {
 	// extract the items from the arguments

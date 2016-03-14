@@ -1,5 +1,6 @@
 #include "header.h"
 
+// for the pthreads
 pthread_t dsh_threads[4];
 int thread_count = 0;
 int thread_flags[4] = {0, 0, 0, 0};
@@ -8,16 +9,18 @@ const int SYSTAT_T = 1;
 const int HB_T = 2;
 const int PWD_T = 3;
 
-int pipeFlag = 0;
-int redirectFlag = 0;
+// for remote pipelining
 int remoteFlag = 0;
 
+// for pipelining
+int pipeFlag = 0;
+
+// hold the second set of arguments when pipelining
 char* args2[64];
 
-int TEST = 4;
-
-int redirectDirection = 0;
+// for redirection
+int redirectDirection = -1;
+int redirectFlag = 0;
 char* redirectFilename = "";
-
 const int DIRECT_IN = 0;
 const int DIRECT_OUT = 1;

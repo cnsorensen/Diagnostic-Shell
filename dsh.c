@@ -14,15 +14,16 @@
 //          system, harvard commas, and for/exec system calls.
 //
 // Bugs:
-//  need to add second installment of the program
-//      add hb - DONE
 //      pthread it up - NOT DONE - well it is, cmdnm is being picky and it's all
-//                      being trippy 
-//      | - DONE - I could do a three-way with it though
-//      < and > - NOT DONE
+//                      being trippy
+//      hb - sometimes when you run it, it will spit out everything at once. Just run
+//           it again and it will work properly
+//      cmdnm - I have to have it print out the PID or else it won't work. It doesn't look
+//              *terrible* but it keeps me awake at night.
+//
+//      | - doesn't a three-way with it though
+//      < and > - it only works for the standard use.
 //      (( and )) - fuck me in the ass
-//  Clean up some
-//  Error checking
 //
 
 #include "header.h"

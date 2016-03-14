@@ -22,8 +22,10 @@ int dsh_fork( char* args[], int num_params )
     {
         pipe( fds );
     }
+
     // for redirect
     int* rd_fds;
+	// create a pipe
     if( redirectFlag == 1 )
     {
         pipe( rd_fds );
@@ -44,10 +46,10 @@ int dsh_fork( char* args[], int num_params )
     // child process
     if( c_pid == (pid_t) 0 )
     {
-        // add another fork here if piping
+        // if there is pipelining
         if(  pipeFlag == 1 )
         {
-            //another fork
+            // create another fork
             int pipe_pid;
             pipe_pid = fork();
 
@@ -56,6 +58,8 @@ int dsh_fork( char* args[], int num_params )
             {
                 dup2( fds[1], STDOUT_FILENO );                
 				close( fds[0] );
+
+				// execute the first command
                 execvp( args1[0], args1 );
             }
             // parent process
@@ -63,19 +67,25 @@ int dsh_fork( char* args[], int num_params )
             {
 				dup2( fds[0], STDIN_FILENO );
                 close( fds[1] );
+
+				// execute the second command
                 execvp( args2[0], args2 );
                 exit(0);
             }
 
             exit(0);
         }
+
+		// if there is redirection
         if( redirectFlag == 1 )
         {
+			// if it's <
             if( redirectDirection == DIRECT_IN )
             {
                 rd_fds = open( redirectFilename, O_RDONLY, 0666 );
                 dup2( rd_fds, STDIN_FILENO );
             }
+			// if it's >
             else
             {
                 rd_fds = creat( redirectFilename, 0644 );
@@ -83,7 +93,10 @@ int dsh_fork( char* args[], int num_params )
             }
 
             close( rd_fds );
+			
+			// execute the command
             execvp( args1[0], args1 );
+
             exit(0);
         }
 		else
@@ -100,6 +113,8 @@ int dsh_fork( char* args[], int num_params )
     {
         int waiting;
         wait( &waiting );
+
+		// if there was piping, close 'em up!
         if( pipeFlag == 1 )
         {
             close( fds[0] );
@@ -109,15 +124,3 @@ int dsh_fork( char* args[], int num_params )
 
     return 1;
 }
-
-/*
- 
-in child:
-dup2( 1, 1 )
-close(1)
-exec
-
-in parent:
-nothing
-
-*/
