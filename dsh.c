@@ -16,8 +16,9 @@
 // Bugs:
 //  need to add second installment of the program
 //      add hb - DONE
-//      pthread it up - DONE
-//      | - DONE
+//      pthread it up - NOT DONE - well it is, cmdnm is being picky and it's all
+//                      being trippy 
+//      | - NOTTTTT DONE - I did it the wrong and literal way
 //      < and >
 //      (( and ))
 //  Clean up some
@@ -25,7 +26,6 @@
 //
 
 #include "header.h"
-
 
 // Split the instructions (used in pipelining)
 int splitInstructions( char* line )
@@ -72,7 +72,6 @@ char* findRedirect( char* line )
 {
     const char delimIn[2] = "<";
 	const char delimOut[2] = ">";
-	const char delimNewline[2] = "\n";
 
 	// string to hold each token 
     char* instruction = NULL;
@@ -274,6 +273,22 @@ int dsh( char* line )
     return return_val;
 }
 
+void collect_threads()
+{ 
+    int i;
+    
+    for( i = 0; i < 4; i++ )
+    {
+        if( thread_flags[i] == 1 )
+        {
+            pthread_join( dsh_threads[i], NULL );
+            thread_count--;
+        }
+    }
+
+    return;    
+}
+
 int main( int argc, char** argv )
 {
     // flag to control the loop
@@ -296,6 +311,12 @@ int main( int argc, char** argv )
 
         // call the dsh function on the command line
         flag = splitInstructions( line2 );
+
+        // collect the threads created
+        if( thread_count > 0 )
+        {
+            collect_threads();
+        }
     }
 
     return 1;

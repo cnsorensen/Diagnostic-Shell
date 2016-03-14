@@ -11,12 +11,17 @@
 // Note: using the command >top will list the processes and their id's
 int cmdnm( char* pid )
 {
-    printf( "%s\n", "cmdnm" );
-    pthread_t tid;
+    //pthread_t tid;
+    //pthread_attr_t attr;
+    //pthread_attr_init( &attr );
+    //pthread_create( &tid, &attr, p_cmdnm, (void*) pid );
+    //pthread_join( tid, NULL );   
+   
     pthread_attr_t attr;
     pthread_attr_init( &attr );
-    pthread_create( &tid, &attr, p_cmdnm, (void*) pid );
-    pthread_join( tid, NULL );   
+    pthread_create( &dsh_threads[CMDNM_T], &attr, p_cmdnm, (void*) pid );
+    thread_count++;
+    thread_flags[CMDNM_T] = 1;
 
     return 1;
 }
@@ -37,7 +42,6 @@ void* p_cmdnm( void* param )
     // holds the output of the cmdnm file
     //char cmdnm[128] = {NULL};
     char cmdnm[128];
-    
 
     // open the file with the name of the process
     if( (fin = fopen( filename, "r" ) )  != NULL )
@@ -51,9 +55,8 @@ void* p_cmdnm( void* param )
         fclose( fin );
     }
 
-    // return to continue loop
-    //return 1;
     pthread_exit(0);
+    //return NULL;
 }
 
 // Send a signal to a process
@@ -78,12 +81,19 @@ int dsh_signal( int signal_num, int pid )
 // Return: 1 for continue looping, -1 for an error
 int systat()
 {
-	pthread_t tid;
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_create( &tid, &attr, p_systat, NULL );
-	pthread_join( tid, NULL ); 
-    return 1;
+	//pthread_t tid;
+	//pthread_attr_t attr;
+	//pthread_attr_init( &attr );
+	//pthread_create( &tid, &attr, p_systat, NULL );
+	//pthread_join( tid, NULL ); 
+	
+    pthread_attr_t attr;
+    pthread_attr_init( &attr );
+    pthread_create( &dsh_threads[SYSTAT_T], &attr, p_systat, (void*) NULL );
+    thread_count++;
+    thread_flags[SYSTAT_T] = 1;    
+
+	return 1;
 }
 
 void* p_systat( void* param )
@@ -311,6 +321,7 @@ int cd( char* path )
     return 1;
 }
 
+// REFACTOR TO PTHREADS
 // Print the current working directory (the path from /)
 // Usage: pwd
 // Params: nun
@@ -318,14 +329,36 @@ int cd( char* path )
 int pwd()
 {
     // get the current working directory
-    char* cwd;
-    cwd = (char*)get_current_dir_name();
+    //char* cwd;
+    //cwd = (char*)get_current_dir_name();
 
     // print to console
-    printf( "%s\n", cwd );
+    //printf( "%s\n", cwd );
+
+    TEST = 1;
+
+    //pthread_t tid;
+    //pthread_create( &tid, NULL, p_pwd, NULL );
+    //pthread_join( tid, NULL );
+ 
+    pthread_attr_t attr;
+    pthread_attr_init( &attr );
+    pthread_create( &dsh_threads[PWD_T], &attr, p_pwd, NULL );
+    thread_count++;
+    thread_flags[PWD_T] = 1;
 
     return 1;
 }
+
+void* p_pwd( void* param )
+{
+    char* cwd;
+    cwd = (char*)get_current_dir_name();
+
+    printf( "%s\n", cwd );
+    
+    pthread_exit(0);
+} 
 
 // Signals a process 
 // Common signal values:
@@ -377,11 +410,13 @@ int dsh_fork( char* args[], int num_params )
     // child process
     if( c_pid == 0 )
     {
+        ///do the piping in here
         // execute the program
         execvp( args[0], ironman );
         // only returns when an erro occurs
         //printf( "printing if error occurs\n" ); 
         exit(0);
+    
     }
     // parent process
     else
@@ -415,11 +450,17 @@ int dsh_hb( int tinc, int tend, char* tval )
 		hb_args[2] = 2;
 	}
 
-	pthread_t tid;
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_create( &tid, &attr, p_hb, hb_args );
-	pthread_join( tid, NULL );
+	//pthread_t tid;
+	//pthread_attr_t attr;
+	//pthread_attr_init( &attr );
+	//pthread_create( &tid, &attr, p_hb, hb_args );
+	//pthread_join( tid, NULL );
+ 
+    pthread_attr_t attr;
+    pthread_attr_init( &attr );
+    pthread_create( &dsh_threads[HB_T], &attr, p_hb, hb_args );
+    thread_count++;
+    thread_flags[HB_T] = 1;
 
     return 1;
 }

@@ -30,6 +30,7 @@ void* p_systat( void* );
 int dsh_exit();
 int cd( char* );
 int pwd();
+void* p_pwd( void* );
 int dsh_kill( int, int );
 int dsh_fork( char**, int );
 int dsh_signal( int, int );
@@ -42,5 +43,17 @@ char* findRedirect( char* );
 // globals
 extern int REDIRECT_DIRECTION;
 extern char* REDIRECT_FILENAME;
+
+// [cmdnm, systat, hb, pwd]
+extern pthread_t dsh_threads[4];
+extern int thread_count;
+extern int thread_flags[4];
+extern const int CMDNM_T;
+extern const int SYSTAT_T;
+extern const int HB_T;
+extern const int PWD_T;
+
+
+extern int TEST;
 
 #endif
