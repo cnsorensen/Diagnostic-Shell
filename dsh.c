@@ -24,7 +24,7 @@
 //      | - doesn't a three-way with it though
 //      < and > - it only works for the standard use. I made a cute program that reads
 //                in a file like < and prints the number in it. But it doesn't print :(
-//      (( and )) - fuck me in the ass
+//      (( and )) - it doesn't work for everything
 //  
 
 #include "header.h"
@@ -385,6 +385,8 @@ void collect_threads()
     return;    
 }
 
+// Sets up a client
+// Found at http://www.linuxhowtos.org/C_C++/socket.htm
 void clientSetup( char* targeaddr, char* port )
 {
 	int sockfd, portno;
@@ -422,11 +424,12 @@ void clientSetup( char* targeaddr, char* port )
 	}
 
 	dup2( sockfd , STDIN_FILENO ); 
-	//close( sockfd );
 
 	return;
 }
 
+// Sets up the server. 
+// Found on http://www.linuxhowtos.org/C_C++/socket.htm
 void serverSetup( char* port )
 {
 	int sockfd, newsockfd, portno;
@@ -465,10 +468,8 @@ void serverSetup( char* port )
         exit(0);
     }
 
-	// duplicate and the close the original
 	dup2( newsockfd , STDOUT_FILENO );
 	dup2( newsockfd , STDIN_FILENO ); 
-	//close( newsockfd );
 
 	return;
 }

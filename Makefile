@@ -1,5 +1,5 @@
 # Makefile
-# Makefile for CSC456 Prog 1: Diognostic Shell
+# Makefile for CSC456 Prog 2: Diognostic Shell
 
 # Author: Christine Sorensen
 # Class: CSC456: Operating Systems

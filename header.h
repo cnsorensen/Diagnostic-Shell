@@ -17,7 +17,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/wait.h>
-#include <time.h>
 #include <pthread.h>
 #include <arpa/inet.h> 
 #include <sys/socket.h>
