@@ -9,11 +9,11 @@
 // Params: pid - the process id 
 // Return: 1- success, continue looping, -1 - fail. fork it.
 // Note: using the command >top will list the processes and their id's
-int cmdnm( char* pid )
+int cmdnm(char* pid)
 { 
     pthread_attr_t attr;
-    pthread_attr_init( &attr );
-    pthread_create( &dsh_threads[CMDNM_T], &attr, p_cmdnm, (void*) pid );
+    pthread_attr_init(&attr);
+    pthread_create(&dsh_threads[CMDNM_T], &attr, p_cmdnm, (void*) pid);
     thread_count++;
     thread_flags[CMDNM_T] = 1;
 
@@ -21,7 +21,7 @@ int cmdnm( char* pid )
 }
 
 // The function that cmdnm pthread calls
-void* p_cmdnm( void* param )
+void* p_cmdnm(void* param)
 {
     char* pid = (char*) param;
 
@@ -29,28 +29,28 @@ void* p_cmdnm( void* param )
     char filename[32];
 
     // create the filename with the pid
-    strcat( filename, "/proc/" );
-    strcat( filename, pid );
-    strcat( filename, "/cmdline" );
+    strcat(filename, "/proc/");
+    strcat(filename, pid);
+    strcat(filename, "/cmdline");
 
     // BUG: For some weird-ass reason, if you don't print the pid
     //      it won't open the file. If you only print the filename
     //      here, it will have a bunch of garbage for the pid
-    printf( "pid: %s\n", pid );
+    printf("pid: %s\n", pid);
 
     // holds the output of the cmdnm file
     char cmdnm[128];
 
     // open the file with the name of the process
-    if( (fin = fopen( filename, "r" ) )  != NULL )
+    if((fin = fopen( filename, "r"))  != NULL)
     {
         // grab the pid's name
-        fgets( cmdnm, sizeof( cmdnm ), (FILE*)fin );
+        fgets(cmdnm, sizeof( cmdnm), (FILE*)fin);
 
         // print to output
-        printf( "%s\n", cmdnm );
+        printf("%s\n", cmdnm);
     
-        fclose( fin );
+        fclose(fin);
     }
 
     pthread_exit(0);
@@ -59,10 +59,10 @@ void* p_cmdnm( void* param )
 // Send a signal to a process
 // Usage: signal <signal_num> <pid>
 // Return: 1, continue while loop
-int dsh_signal( int signal_num, int pid )
+int dsh_signal(int signal_num, int pid)
 {   
     // call the signal using the kill function
-    dsh_kill( pid, signal_num );
+    dsh_kill(pid, signal_num);
 
     return 1;
 }
@@ -79,8 +79,8 @@ int dsh_signal( int signal_num, int pid )
 int systat()
 {	
     pthread_attr_t attr;
-    pthread_attr_init( &attr );
-    pthread_create( &dsh_threads[SYSTAT_T], &attr, p_systat, (void*) NULL );
+    pthread_attr_init(&attr);
+    pthread_create(&dsh_threads[SYSTAT_T], &attr, p_systat, (void*) NULL);
     thread_count++;
     thread_flags[SYSTAT_T] = 1;    
 
@@ -88,7 +88,7 @@ int systat()
 }
 
 // The function that the syscat pthread calls
-void* p_systat( void* param )
+void* p_systat(void* param)
 {
     // used for all file opening
     FILE* fin;
@@ -98,20 +98,20 @@ void* p_systat( void* param )
     char version[256];
 
     // open the file containing the version of linux
-    if( ( fin = fopen( "/proc/version", "r" ) ) != NULL )
+    if(( fin = fopen( "/proc/version", "r")) != NULL)
     {
     	// get the version from the file
-    	fgets( version, sizeof( version ), (FILE*)fin );
+    	fgets(version, sizeof( version), (FILE*)fin);
 
     	// Remove that newline
-        char* versionPrint = removeNewLine( version );
+        char* versionPrint = removeNewLine(version);
         
 
     	// close the version file
-    	fclose( fin );
+    	fclose(fin);
     
     	// print that sob out!
-    	printf( "Linux version: %s\n", versionPrint );
+    	printf("Linux version: %s\n", versionPrint);
 	}
 
     //** system uptime **//
@@ -119,19 +119,19 @@ void* p_systat( void* param )
     char uptime[64];
 
     // open uptime file
-    if( ( fin = fopen( "/proc/uptime", "r" ) ) == NULL )
+    if(( fin = fopen( "/proc/uptime", "r")) == NULL)
     {
 	    // get the uptime from the file
-	    fgets( uptime, sizeof( uptime ), (FILE*)fin );
+	    fgets(uptime, sizeof( uptime), (FILE*)fin);
 
 	    // Remove that newline
-        char* uptimePrint = removeNewLine( uptime );
+        char* uptimePrint = removeNewLine(uptime);
 
 	    // close the uptime file
-	    fclose( fin );
+	    fclose(fin);
 
 	    // print uptime
-	    printf( "System uptime: %s\n", uptimePrint );
+	    printf("System uptime: %s\n", uptimePrint);
 	}
     
     //** memory usage: memtotal and memfree **//
@@ -144,59 +144,59 @@ void* p_systat( void* param )
     char* metric = NULL;
 
     // open up folder with the memory information
-    if( ( fin = fopen( "/proc/meminfo", "r" ) ) != NULL )
+    if(( fin = fopen( "/proc/meminfo", "r")) != NULL)
     {
 
 	    // delimiter to tokenize the memory info
     	const char delim[3] = " \t";
 
     	// get the entirty of meminfo one line at a time
-    	while( fgets( line, sizeof( line ), (FILE*)fin ) )
+    	while(fgets( line, sizeof( line), (FILE*)fin))
     	{
     	    // extract the label
-    	    label = strtok( line, delim );
+    	    label = strtok(line, delim);
             
     	    // if it's the memory free information
-    	    if( strcmp( label, "MemFree:" ) == 0 )
+    	    if(strcmp( label, "MemFree:") == 0)
     	    {
     	        memFlag++;   
             
     	        // extract the value and the metric
-    	        memfree = strtok( NULL, " \t" );
-    	        metric = strtok( NULL, " \t" );
+    	        memfree = strtok(NULL, " \t");
+    	        metric = strtok(NULL, " \t");
     	        
     	        // gaaahhhhh, take out that newline!!!!
-    	        char* metricPrint = removeNewLine( metric );        
+    	        char* metricPrint = removeNewLine(metric);        
 
     	        // Print the memory free to the console
-    	        printf( "MemFree: %s %s\n", memfree, metricPrint );
+    	        printf("MemFree: %s %s\n", memfree, metricPrint);
     	    }
 	
     	    // if it's the memory total information
-    	    else if( strcmp( label, "MemTotal:" ) == 0 )
+    	    else if(strcmp( label, "MemTotal:") == 0)
     	    {
     	        memFlag++;
     	        
     	        // grab the value and the metric
-    	        memtotal = strtok( NULL, " \t" );
-    	        metric = strtok( NULL, " \t" );
+    	        memtotal = strtok(NULL, " \t");
+    	        metric = strtok(NULL, " \t");
     	        
     	        // Remove that gd newline at the end of the metric
-	            char* metricPrint = removeNewLine( metric );
+	            char* metricPrint = removeNewLine(metric);
 
     	        // print out the memory total
-    	        printf( "MemTotal: %s %s\n", memtotal, metricPrint );
+    	        printf("MemTotal: %s %s\n", memtotal, metricPrint);
     	    }
 	
     	    // stop reading the file once you get the two needed values
-    	    if( memFlag == 2 )
+    	    if(memFlag == 2)
     	    {
     	        break;
     	    }
     	}
 	
     	// close the meminfo file
-    	fclose( fin );
+    	fclose(fin);
 	}
     
 	//** print vendor id through cache size **//
@@ -210,73 +210,73 @@ void* p_systat( void* param )
     const char delim2[4] = " \t";
 
     // open the file with the cpu info
-    if( ( fin = fopen( "/proc/cpuinfo", "r" ) ) != NULL )
+    if(( fin = fopen( "/proc/cpuinfo", "r")) != NULL)
     {
     	// get entirity of cpuinfo one line at a time
-    	while( fgets( line, sizeof( line ), (FILE*) fin ) )
+    	while(fgets( line, sizeof( line), (FILE*) fin))
     	{
         	// copy the read in line to a variable that will print it
-        	strcpy( linePrint, line );
+        	strcpy(linePrint, line);
 
         	// extract the label
-        	label = strtok( line, delim2 ); 
+        	label = strtok(line, delim2); 
 
         	// compare the labels
-        	if( strcmp( label, "vendor_id" ) == 0 )
+        	if(strcmp( label, "vendor_id") == 0)
         	{
-        	    printf( "%s", linePrint );
+        	    printf("%s", linePrint);
         	    cpuFlag++;
         	}
-        	else if( strcmp( label, "cpu" ) == 0 )
+        	else if(strcmp( label, "cpu") == 0)
         	{
-        	    if( strcmp( strtok( NULL, delim2 ), "family" ) == 0 ) 
+        	    if(strcmp( strtok( NULL, delim2), "family") == 0) 
         	    {
-        	        printf( "%s", linePrint );
+        	        printf("%s", linePrint);
         	        cpuFlag++;
         	    }
         	}
         	// Note here: model name will short circuit here before seeing the next 
         	// else-if to avoid printing a duplicate line with model
-        	else if( strcmp( label, "model" ) == 0 &&  strcmp( strtok( NULL, delim2 ), "name" ) == 0 )
+        	else if(strcmp( label, "model") == 0 &&  strcmp( strtok( NULL, delim2), "name") == 0)
         	{
-        	    printf( "%s", linePrint );
+        	    printf("%s", linePrint);
         	    cpuFlag++;
         	}
-        	else if( strcmp( label, "model" ) == 0 )
+        	else if(strcmp( label, "model") == 0)
         	{
-        	    printf( "%s", linePrint );
+        	    printf("%s", linePrint);
         	    cpuFlag++;
         	}
-        	else if( strcmp( label, "stepping" ) == 0 )
+        	else if(strcmp( label, "stepping") == 0)
         	{
-        	    printf( "%s", linePrint );
+        	    printf("%s", linePrint);
         	    cpuFlag++;
         	}
-        	else if( strcmp( label, "microcode" ) == 0 )
+        	else if(strcmp( label, "microcode") == 0)
         	{
-        	    printf( "%s", linePrint );
+        	    printf("%s", linePrint);
         	    cpuFlag++;
         	}
-        	else if( strcmp( label, "cpu" ) == 0 && strcmp( strtok( NULL, delim2 ), "MGz" ) == 0 )
+        	else if(strcmp( label, "cpu") == 0 && strcmp( strtok( NULL, delim2), "MGz") == 0)
         	{
-        	        printf( "%s", linePrint );
+        	        printf("%s", linePrint);
         	        cpuFlag++;
         	}
-        	else if( strcmp( label, "cache" ) == 0 && strcmp( strtok( NULL, delim2 ), "size" ) == 0 )
+        	else if(strcmp( label, "cache") == 0 && strcmp( strtok( NULL, delim2), "size") == 0)
         	{
-        	    printf( "%s", linePrint );
+        	    printf("%s", linePrint);
         	    cpuFlag++;
         	}
 	
         	// If you have printed all of the needed cpu infos, stop reading from file
-        	if( cpuFlag >= 8 )
+        	if(cpuFlag >= 8)
         	{
         	    break;
         	}
 		}
 
     	// close the cpuinfo file
-    	fclose( fin );
+    	fclose(fin);
 	}
 
 	pthread_exit(0);
@@ -296,15 +296,15 @@ int dsh_exit()
 // Usage 2: cd <relative_path>
 // Params: char* path - directory to be changed into
 // Return: 1 - continue while loop, -1 for failure
-int cd( char* path )
+int cd(char* path)
 {
     int success;
 
     // change to the directory given
-    success = chdir( (const char*) path );
+    success = chdir((const char*) path);
     
     // Invalid path or unsuccessful change
-    if( success == -1 )
+    if(success == -1)
     {
         return -1;
     }
@@ -320,20 +320,20 @@ int cd( char* path )
 int pwd()
 {
     pthread_attr_t attr;
-    pthread_attr_init( &attr );
-    pthread_create( &dsh_threads[PWD_T], &attr, p_pwd, NULL );
+    pthread_attr_init(&attr);
+    pthread_create(&dsh_threads[PWD_T], &attr, p_pwd, NULL);
     thread_count++;
     thread_flags[PWD_T] = 1;
 
     return 1;
 }
 // The fuction that the pwd pthread calls
-void* p_pwd( void* param )
+void* p_pwd(void* param)
 {
     char* cwd;
     cwd = (char*)get_current_dir_name();
 
-    printf( "%s\n", cwd );
+    printf("%s\n", cwd);
     
     pthread_exit(0);
 } 
@@ -349,11 +349,11 @@ void* p_pwd( void* param )
 //  Params: pid - process to signal
 //          signal_num - value to want to send it (see above for common ones)
 //  Return: flag - the response from the kill, 0 for success, -1 for error
-int dsh_kill( int pid, int signal_num )
+int dsh_kill(int pid, int signal_num)
 {
     // signal pid. set return to flag to return
     int flag;
-    flag = kill( pid, signal_num );
+    flag = kill(pid, signal_num);
 
     // return the result from the kill process
     return flag;
@@ -368,7 +368,7 @@ int dsh_kill( int pid, int signal_num )
 //  tend - time to end, how long to run
 //  tval - the units in s, ms for seconds and miliseconds respectively
 // Return: 1 for success
-int dsh_hb( int tinc, int tend, char* tval )
+int dsh_hb(int tinc, int tend, char* tval)
 {
 	// the list that will be passed into the function
 	// a '1' is initialized for the last element
@@ -376,14 +376,14 @@ int dsh_hb( int tinc, int tend, char* tval )
 	int hb_args[3] = { tinc, tend, 1 };
 	
 	// change it if the user wants the units in milliseconds
-	if( strcmp( tval, "ms" ) == 0 )
+	if(strcmp( tval, "ms") == 0)
 	{
 		hb_args[2] = 2;
 	}
- 
+
     pthread_attr_t attr;
-    pthread_attr_init( &attr );
-    pthread_create( &dsh_threads[HB_T], &attr, p_hb, hb_args );
+    pthread_attr_init(&attr);
+    pthread_create(&dsh_threads[HB_T], &attr, p_hb, hb_args);
     thread_count++;
     thread_flags[HB_T] = 1;
 
@@ -391,7 +391,7 @@ int dsh_hb( int tinc, int tend, char* tval )
 }
 
 // The function that hb thread calls
-void* p_hb( void* args )
+void* p_hb(void* args)
 {
 	// extract the items from the arguments
 	int* hb_args = (int*) args;
@@ -408,7 +408,7 @@ void* p_hb( void* args )
     char* timeArgs[2] = { "date", "+%T" };
 
     // if the values are in seconds
-    if( tval == 1 )
+    if(tval == 1)
     {
         // convert the time increment to microseconds
         // 1 second == 1000000 microseconds
@@ -416,7 +416,7 @@ void* p_hb( void* args )
     }
 
     // if the values are in milliseconds
-    else if( tval == 2 )
+    else if(tval == 2)
     {
         // change it to display milliseconds
         timeArgs[1] = "+%T.%3N";
@@ -427,18 +427,18 @@ void* p_hb( void* args )
     }
 
     // do it the first time to avoid the first wait
-    dsh_fork( timeArgs, 2 );
+    dsh_fork(timeArgs, 2);
 
     // do the number of times specified to run
     int i;
-    for( i = 1; i < tend; i++ )
+    for(i = 1; i < tend; i++)
     {
         // wait the incremented time
         // usleep takes in values for microseconds
-        usleep( tinc );
+        usleep(tinc);
 
         // call the date command
-        dsh_fork( timeArgs, 2 );  
+        dsh_fork(timeArgs, 2);  
     }
 
     pthread_exit(0);

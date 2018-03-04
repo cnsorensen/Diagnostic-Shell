@@ -26,33 +26,33 @@
 /**Function prototpyes**/
 
 // misc functions
-char* toLowerCase( char* );
-int isInt( char* );
-char* removeNewLine( char* );
+char* toLowerCase(char*);
+int isInt(char*);
+char* removeNewLine(char*);
 
 // dsh commands
-int cmdnm( char* );
-void* p_cmdnm( void* );
+int cmdnm(char*);
+void* p_cmdnm(void*);
 int systat();
-void* p_systat( void* );
+void* p_systat(void*);
 int dsh_exit();
-int cd( char* );
+int cd(char*);
 int pwd();
-void* p_pwd( void* );
-int dsh_kill( int, int );
-int dsh_fork( char**, int );
-int dsh_signal( int, int );
-int dsh_hb( int, int, char* );
-void* p_hb( void* );
+void* p_pwd(void*);
+int dsh_kill(int, int);
+int dsh_fork(char**, int);
+int dsh_signal(int, int);
+int dsh_hb(int, int, char*);
+void* p_hb(void*);
 
 // dsh functions
-int dsh( char* );
-char* splitInstructions( char* );
-char* findRedirect( char* );
-void clientSetup( char*, char* );
-void serverSetup( char* );
-char* splitRemoteClient( char* );
-char* splitRemoteServer( char* );
+int dsh(char*);
+char* splitInstructions(char*);
+char* findRedirect(char*);
+void clientSetup(char*, char*);
+void serverSetup(char*);
+char* splitRemoteClient(char*);
+char* splitRemoteServer(char*);
 
 /**globals**/
 
