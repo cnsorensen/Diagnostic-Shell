@@ -8,8 +8,10 @@ A process identification program and a simple shell. To introduce Unix environme
 
 ## Compile
 >gcc dsh.c fork_dsh.c funcs.c globals.c misc.c -o dsk
+
 A Makefile is also included to use to compile.
 
-## Usage >./dsh
+## Usage 
+>./dsh
 
 
