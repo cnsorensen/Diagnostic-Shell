@@ -22,7 +22,10 @@ int dsh_fork(char* args[], int num_params)
   // create a pipe
   if(pipeFlag == 1)
   {
-    pipe(fds);
+    if(pipe(fds) == -1)
+    {
+      return -1;
+    }
   }
 
   // for redirect
@@ -31,7 +34,11 @@ int dsh_fork(char* args[], int num_params)
   // create a pipe
   if(redirectFlag == 1)
   {
-    pipe(rd_fds);
+    if(pipe(rd_fds) == -1)
+    {
+      // FIXME: need to close the fds pipe
+      return -1;
+    }
   }
 
   // array to hold the arguments
@@ -48,10 +55,11 @@ int dsh_fork(char* args[], int num_params)
   args1[i] = NULL;
 
   // child process
-  if(c_pid == (pid_t) 0)
+  // typecasting 0 to a pid_t
+  if(c_pid == (pid_t)0)
   {
     // if there is pipelining
-    if( pipeFlag == 1)
+    if(pipeFlag == 1)
     {
       // create another fork
       int pipe_pid;

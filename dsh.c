@@ -14,16 +14,21 @@
 //          system, harvard commas, and for/exec system calls.
 //
 // Bugs:
-//      pthread it up - NOT DONE - well it is, cmdnm is being picky and it's all
-//                      being trippy
-//      hb - sometimes when you run it, it will spit out everything at once. Just run
-//           it again and it will work properly
-//      cmdnm - I have to have it print out the PID or else it won't work. It doesn't look
-//              *terrible* but it keeps me awake at night.
+//      pthread it up - NOT DONE - well it is, cmdnm is being picky and it's
+//                      all being trippy
+//
+//      hb - sometimes when you run it, it will spit out everything at once.
+//           Just run it again and it will work properly
+//
+//      cmdnm - I have to have it print out the PID or else it won't work. It
+//          doesn't look *terrible* but it keeps me awake at night.
 //
 //      | - doesn't a three-way with it though
+//
 //      < and > - it only works for the standard use. I made a cute program that reads
-//                in a file like < and prints the number in it. But it doesn't print :(
+//                reads in a file like < and prints the number in it. But it 
+//                doesn't print :(
+//
 //      ((and)) - it doesn't work for everything
 //
 
@@ -50,22 +55,28 @@ char* splitInstructions(char* line)
 
   // delimiters
   const char delim[3] = " \t";
+  
   // string to hold each token
   char* token = NULL;
 
   int i = 0;
+  
   // extract the first word
   token = strtok(instruction2, delim);
+  
   // collect the words
   while(token != NULL)
   {
     // add to list of tokens
     args2[i] = token;
+    
     i++;
+    
     // get the next word
     token = strtok(NULL, delim);
   }
-  args2[i+1] = NULL;
+
+  args2[i + 1] = NULL;
 
   return instruction1;
 }
@@ -84,7 +95,7 @@ char* findRedirect(char* line)
   redirectFlag = 1;
 
   // if it's a file in
-  if(strchr( line, '<') != NULL )
+  if(strchr(line, '<') != NULL)
   {
     // grab the instruction
     instruction = strtok(line, delimIn);
@@ -101,7 +112,7 @@ char* findRedirect(char* line)
   }
 
   // if it's a file out
-  else if(strchr( line, '>') != NULL )
+  else if(strchr(line, '>') != NULL)
   {
     // grab the instruction
     instruction = strtok(line, delimOut);
@@ -196,19 +207,19 @@ char* splitRemoteServer(char* line)
 int dsh(char* line)
 {
   // check for a pipe
-  if(strchr( line, '|') != NULL )
+  if(strchr(line, '|') != NULL)
   {
     line = splitInstructions(line);
   }
 
   // check for a redirect
-  else if(strchr( line, '<') != NULL || strchr( line, '>' ) != NULL )
+  else if(strchr(line, '<') != NULL || strchr(line, '>') != NULL)
   {
     line = findRedirect(line);
   }
 
   // check for remote client
-  else if(strchr( line, '(') != NULL )
+  else if(strchr(line, '(') != NULL)
   {
     // turn on the flag
     remoteClientFlag = 1;
@@ -216,7 +227,7 @@ int dsh(char* line)
   }
 
   // check for remote server
-  else if(strchr( line, ')') != NULL )
+  else if(strchr(line, ')') != NULL)
   {
     // turn on the flag
     remoteServerFlag = 1;
@@ -258,7 +269,7 @@ int dsh(char* line)
 
   // the number of parameters to check for
   int num_params = i;
-  if(strcmp( command, "cmdnm") == 0 )
+  if(strcmp(command, "cmdnm") == 0)
   {
     if(num_params >= 2)
     {
@@ -279,7 +290,7 @@ int dsh(char* line)
       return_val = -1;
     }
   }
-  else if(strcmp( command, "signal") == 0 )
+  else if(strcmp(command, "signal") == 0)
   {
     // pass in the signal number and pic
     if(num_params >= 3)
@@ -296,15 +307,15 @@ int dsh(char* line)
       return_val = -1;
     }
   }
-  else if(strcmp( command, "systat") == 0 )
+  else if(strcmp(command, "systat") == 0)
   {
     return_val = systat();
   }
-  else if(strcmp( command, "exit") == 0 )
+  else if(strcmp(command, "exit") == 0)
   {
     return_val = dsh_exit();
   }
-  else if(strcmp( command, "hb") == 0 )
+  else if(strcmp(command, "hb") == 0)
   {
     if(num_params >= 4)
     {
@@ -320,7 +331,7 @@ int dsh(char* line)
       return_val = -1;
     }
   }
-  else if(strcmp( command, "cd") == 0 )
+  else if(strcmp(command, "cd") == 0)
   {
     // pass in path
     if(num_params >= 2)
@@ -332,11 +343,11 @@ int dsh(char* line)
       return_val = -1;
     }
   }
-  else if(strcmp( command, "pwd") == 0 )
+  else if(strcmp(command, "pwd") == 0)
   {
     return_val = pwd();
   }
-  else if(strcmp( command, "kill") == 0 )
+  else if(strcmp(command, "kill") == 0)
   {
     if(num_params >= 3)
     {
@@ -417,7 +428,7 @@ void clientSetup(char* targeaddr, char* port)
 
   bcopy((char*)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
   serv_addr.sin_port = htons(portno);
-  if(connect( sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0 )
+  if(connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
   {
     fprintf(stderr, "ERROR connecting\n");
     exit(0);
@@ -494,6 +505,13 @@ int main(int argc, char** argv)
       continue;
     }
 
+    // if the input is an empty line, continue
+    // this fixes a seg fault that happens in this case
+    if(strlen(line) <= 1)
+    {
+      continue;
+    }
+    
     // remove that annoying newline character at the end
     // that fgets seems to have necessary to include
     char* line2 = removeNewLine(line);

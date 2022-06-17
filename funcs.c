@@ -42,10 +42,15 @@ void* p_cmdnm(void* param)
   char cmdnm[128];
 
   // open the file with the name of the process
-  if((fin = fopen( filename, "r"))  != NULL)
+  if((fin = fopen(filename, "r"))  != NULL)
   {
     // grab the pid's name
-    fgets(cmdnm, sizeof( cmdnm), (FILE*)fin);
+    if(fgets(cmdnm, sizeof(cmdnm), (FILE*)fin) == NULL)
+    {
+      printf("ERROR retreiving PID name\n");
+      fclose(fin);
+      pthread_exit(0);
+    }
 
     // print to output
     printf("%s\n", cmdnm);
@@ -93,48 +98,49 @@ void* p_systat(void* param)
   // used for all file opening
   FILE* fin;
 
-  //** linux version **//
+  // linux version
   // found in /proc/version
   char version[256];
 
   // open the file containing the version of linux
-  if(( fin = fopen( "/proc/version", "r")) != NULL)
+  if((fin = fopen("/proc/version", "r")) != NULL)
   {
     // get the version from the file
-    fgets(version, sizeof( version), (FILE*)fin);
+    if(fgets(version, sizeof(version), (FILE*)fin) != NULL)
+    {
+      // Remove that newline
+      char* versionPrint = removeNewLine(version);
 
-    // Remove that newline
-    char* versionPrint = removeNewLine(version);
-
+      // print that sob out!
+      printf("Linux version: %s\n", versionPrint);
+    }
 
     // close the version file
     fclose(fin);
-
-    // print that sob out!
-    printf("Linux version: %s\n", versionPrint);
   }
 
-  //** system uptime **//
+  // system uptime
   // found in /proc/uptime
   char uptime[64];
 
   // open uptime file
-  if(( fin = fopen( "/proc/uptime", "r")) == NULL)
+  if((fin = fopen("/proc/uptime", "r")) != NULL)
   {
     // get the uptime from the file
-    fgets(uptime, sizeof( uptime), (FILE*)fin);
-
-    // Remove that newline
-    char* uptimePrint = removeNewLine(uptime);
+    if(fgets(uptime, sizeof(uptime), (FILE*)fin) != NULL)
+    {
+      // Remove that newline
+      char* uptimePrint = removeNewLine(uptime);
+    
+      // print uptime
+      printf("System uptime: %s\n", uptimePrint);
+    }
 
     // close the uptime file
     fclose(fin);
-
-    // print uptime
-    printf("System uptime: %s\n", uptimePrint);
   }
 
-  //** memory usage: memtotal and memfree **//
+  // memory usage: memtotal and memfree
   // found in /proc/meminfo
   char* memtotal = NULL;
   char* memfree = NULL;
@@ -144,20 +150,20 @@ void* p_systat(void* param)
   char* metric = NULL;
 
   // open up folder with the memory information
-  if(( fin = fopen( "/proc/meminfo", "r")) != NULL)
+  if((fin = fopen("/proc/meminfo", "r")) != NULL)
   {
 
     // delimiter to tokenize the memory info
     const char delim[3] = " \t";
 
     // get the entirty of meminfo one line at a time
-    while(fgets( line, sizeof( line), (FILE*)fin))
+    while(fgets(line, sizeof(line), (FILE*)fin))
     {
       // extract the label
       label = strtok(line, delim);
 
       // if it's the memory free information
-      if(strcmp( label, "MemFree:") == 0)
+      if(strcmp(label, "MemFree:") == 0)
       {
         memFlag++;
 
@@ -173,7 +179,7 @@ void* p_systat(void* param)
       }
 
       // if it's the memory total information
-      else if(strcmp( label, "MemTotal:") == 0)
+      else if(strcmp(label, "MemTotal:") == 0)
       {
         memFlag++;
 
@@ -199,8 +205,8 @@ void* p_systat(void* param)
     fclose(fin);
   }
 
-  //** print vendor id through cache size **//
-  // found in /proc/cpu info
+  // print vendor id through cache size
+  // found in /proc/cpuinfo
 
   // count for number of lines needed to print
   int cpuFlag = 0;
@@ -210,10 +216,10 @@ void* p_systat(void* param)
   const char delim2[4] = " \t";
 
   // open the file with the cpu info
-  if(( fin = fopen( "/proc/cpuinfo", "r")) != NULL)
+  if((fin = fopen("/proc/cpuinfo", "r")) != NULL)
   {
     // get entirity of cpuinfo one line at a time
-    while(fgets( line, sizeof( line), (FILE*) fin))
+    while(fgets(line, sizeof(line), (FILE*) fin))
     {
       // copy the read in line to a variable that will print it
       strcpy(linePrint, line);
@@ -222,14 +228,14 @@ void* p_systat(void* param)
       label = strtok(line, delim2);
 
       // compare the labels
-      if(strcmp( label, "vendor_id") == 0)
+      if(strcmp(label, "vendor_id") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
       }
-      else if(strcmp( label, "cpu") == 0)
+      else if(strcmp(label, "cpu") == 0)
       {
-        if(strcmp( strtok( NULL, delim2), "family") == 0)
+        if(strcmp(strtok(NULL, delim2), "family") == 0)
         {
           printf("%s", linePrint);
           cpuFlag++;
@@ -237,32 +243,32 @@ void* p_systat(void* param)
       }
       // Note here: model name will short circuit here before seeing the next
       // else-if to avoid printing a duplicate line with model
-      else if(strcmp( label, "model") == 0 &&  strcmp( strtok( NULL, delim2), "name") == 0)
+      else if(strcmp(label, "model") == 0 &&  strcmp(strtok(NULL, delim2), "name") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
       }
-      else if(strcmp( label, "model") == 0)
+      else if(strcmp(label, "model") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
       }
-      else if(strcmp( label, "stepping") == 0)
+      else if(strcmp(label, "stepping") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
       }
-      else if(strcmp( label, "microcode") == 0)
+      else if(strcmp(label, "microcode") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
       }
-      else if(strcmp( label, "cpu") == 0 && strcmp( strtok( NULL, delim2), "MGz") == 0)
+      else if(strcmp(label, "cpu") == 0 && strcmp(strtok(NULL, delim2), "MGz") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
       }
-      else if(strcmp( label, "cache") == 0 && strcmp( strtok( NULL, delim2), "size") == 0)
+      else if(strcmp(label, "cache") == 0 && strcmp(strtok(NULL, delim2), "size") == 0)
       {
         printf("%s", linePrint);
         cpuFlag++;
@@ -376,7 +382,7 @@ int dsh_hb(int tinc, int tend, char* tval)
   int hb_args[3] = { tinc, tend, 1 };
 
   // change it if the user wants the units in milliseconds
-  if(strcmp( tval, "ms") == 0)
+  if(strcmp(tval, "ms") == 0)
   {
     hb_args[2] = 2;
   }
