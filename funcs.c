@@ -100,7 +100,7 @@ void* p_systat(void* param)
 
   // linux version
   // found in /proc/version
-  char version[256];
+  char* version;
 
   // open the file containing the version of linux
   if((fin = fopen("/proc/version", "r")) != NULL)
@@ -109,10 +109,10 @@ void* p_systat(void* param)
     if(fgets(version, sizeof(version), (FILE*)fin) != NULL)
     {
       // Remove that newline
-      char* versionPrint = removeNewLine(version);
+      version = removeNewline(version);
 
       // print that sob out!
-      printf("Linux version: %s\n", versionPrint);
+      printf("Linux version: %s\n", version);
     }
 
     // close the version file
@@ -121,7 +121,7 @@ void* p_systat(void* param)
 
   // system uptime
   // found in /proc/uptime
-  char uptime[64];
+  char* uptime;
 
   // open uptime file
   if((fin = fopen("/proc/uptime", "r")) != NULL)
@@ -130,10 +130,10 @@ void* p_systat(void* param)
     if(fgets(uptime, sizeof(uptime), (FILE*)fin) != NULL)
     {
       // Remove that newline
-      char* uptimePrint = removeNewLine(uptime);
+      uptime = removeNewline(uptime);
     
       // print uptime
-      printf("System uptime: %s\n", uptimePrint);
+      printf("System uptime: %s\n", uptime);
     }
 
     // close the uptime file
@@ -172,10 +172,10 @@ void* p_systat(void* param)
         metric = strtok(NULL, " \t");
 
         // gaaahhhhh, take out that newline!!!!
-        char* metricPrint = removeNewLine(metric);
+        metric = removeNewline(metric);
 
         // Print the memory free to the console
-        printf("MemFree: %s %s\n", memfree, metricPrint);
+        printf("MemFree: %s %s\n", memfree, metric);
       }
 
       // if it's the memory total information
@@ -188,10 +188,10 @@ void* p_systat(void* param)
         metric = strtok(NULL, " \t");
 
         // Remove that gd newline at the end of the metric
-        char* metricPrint = removeNewLine(metric);
+        metric = removeNewline(metric);
 
         // print out the memory total
-        printf("MemTotal: %s %s\n", memtotal, metricPrint);
+        printf("MemTotal: %s %s\n", memtotal, metric);
       }
 
       // stop reading the file once you get the two needed values

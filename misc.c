@@ -52,7 +52,7 @@ int isInt(char* num)
   return 1;
 }
 
-char* removeNewLine(char* line)
+char* removeNewline(char* line)
 {
   size_t len = strlen(line);
 

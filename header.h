@@ -28,7 +28,7 @@
 // misc functions
 char* toLowerCase(char*);
 int isInt(char*);
-char* removeNewLine(char*);
+char* removeNewline(char*);
 
 // dsh commands
 int cmdnm(char*);

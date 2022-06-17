@@ -491,7 +491,7 @@ int main(int argc, char** argv)
   int flag = 1;
 
   // each line read in from the user
-  char line[80];
+  char* line;
 
   while(flag == 1)
   {
@@ -514,10 +514,10 @@ int main(int argc, char** argv)
     
     // remove that annoying newline character at the end
     // that fgets seems to have necessary to include
-    char* line2 = removeNewLine(line);
+    line = removeNewline(line);
 
     // call the dsh function on the command line
-    flag = dsh(line2);
+    flag = dsh(line);
 
     // collect the threads created
     if(thread_count > 0)
