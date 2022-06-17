@@ -18,7 +18,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <pthread.h>
-#include <arpa/inet.h> 
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -78,7 +78,7 @@ extern int pipeFlag;
 extern char* args2[64];
 
 // for remote pipelining
-extern int remoteFlag; 
+extern int remoteFlag;
 extern int remoteClientFlag;
 extern int remoteServerFlag;
 extern char* remotePort;
